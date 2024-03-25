@@ -24,8 +24,8 @@ print(df_kosdaq.head())
 
 try:
     with connection.cursor() as cursor:
-        query = """INSERT INTO Stock (stock_code, stock_name, market_location, market_type, updated_at) 
-                   VALUES(%s, %s, %s, %s, %s)
+        query = """INSERT INTO Stock (stock_code, stock_name, market_location, market_type, market_cap,updated_at) 
+                   VALUES(%s, %s, %s, %s, %s, %s)
                    ON DUPLICATE KEY UPDATE
                        updated_at = VALUES(updated_at)"""
 
@@ -37,11 +37,12 @@ try:
             for idx, row in batch_data.iterrows():
                 stock_code = row['Code']  # FinanceDataReader의 'Code' 대신 'Symbol'을 사용할 수 있습니다
                 stock_name = row['Name']
+                market_cap = row['Marcap'] # 시가 총액 
                 market_location = 0  # 국내주식
                 market_type = STOCK_MARKET
                 updated_at = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-                data_to_insert.append((stock_code, stock_name, market_location, market_type, updated_at))
+                data_to_insert.append((stock_code, stock_name, market_location, market_type, market_cap, updated_at))
             
             # executemany를 사용하여 데이터 삽입
             cursor.executemany(query, data_to_insert)
