@@ -27,7 +27,8 @@ try:
         query = """INSERT INTO Stock (stock_code, stock_name, market_location, market_type, market_cap,updated_at) 
                    VALUES(%s, %s, %s, %s, %s, %s)
                    ON DUPLICATE KEY UPDATE
-                       updated_at = VALUES(updated_at)"""
+                   market_cap = VALUES(market_cap),
+                   updated_at = VALUES(updated_at)"""
 
         for start_row in range(0, len(df_kosdaq), BATCH_SIZE):
             batch_data = df_kosdaq.iloc[start_row:start_row + BATCH_SIZE]

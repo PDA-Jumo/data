@@ -24,10 +24,11 @@ print(df_NASDAQ.head())
 
 try:
     with connection.cursor() as cursor:
-        query = """INSERT INTO Stock (stock_code, stock_name, market_location, market_type, updated_at) 
-                   VALUES(%s, %s, %s, %s, %s)
+        query = """INSERT INTO Stock (stock_code, stock_name, market_location, market_type, market_cap,updated_at) 
+                   VALUES(%s, %s, %s, %s, %s, %s)
                    ON DUPLICATE KEY UPDATE
-                       updated_at = VALUES(updated_at)"""
+                   market_cap = VALUES(market_cap),
+                   updated_at = VALUES(updated_at)"""
 
         for start_row in range(0, len(df_NASDAQ), BATCH_SIZE):
             batch_data = df_NASDAQ.iloc[start_row:start_row + BATCH_SIZE]
@@ -37,11 +38,13 @@ try:
             for idx, row in batch_data.iterrows():
                 stock_code = row['Symbol']  
                 stock_name = row['Name']
+                market_cap = 0 # 시가 총액 
+
                 market_location = 1  # 해외주식
                 market_type = STOCK_MARKET
                 updated_at = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-                data_to_insert.append((stock_code, stock_name, market_location, market_type, updated_at))
+                data_to_insert.append((stock_code, stock_name, market_location, market_type, market_cap, updated_at))
             
             # executemany를 사용하여 데이터 삽입
             cursor.executemany(query, data_to_insert)
